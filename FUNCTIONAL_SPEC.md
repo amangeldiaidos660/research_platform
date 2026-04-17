@@ -251,14 +251,15 @@
 - подборки;
 - подписки.
 
-### 17. Системная страница статуса `/system`
+### 17. Страница ingestion `/ingestion`
 
 Что будет на странице:
 
-- health status;
-- информация о последнем импорте;
-- статус очередей и scheduler;
-- ссылки на Swagger, Prometheus, Grafana.
+- форма запуска сбора данных из OpenAlex;
+- выбор entity: works, authors, topics;
+- параметры search, filter, per_page, pages;
+- история ingestion jobs;
+- текущие размеры локальной базы.
 
 ---
 

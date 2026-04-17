@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Темы{% endblock %}
+{% block content %}
+<section class="rounded-[2rem] bg-white p-6 shadow-lg ring-1 ring-slate-200">
+  <h2 class="text-3xl font-bold">Темы</h2>
+  <form method="get" class="mt-6 flex gap-3">
+    <input type="text" name="q" value="{{ q or '' }}" placeholder="Поиск по теме" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
+    <button class="rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white">Найти</button>
+  </form>
+</section>
+<section class="mt-6 grid gap-4 md:grid-cols-2">
+  {% for topic in topics %}
+  <article class="rounded-[1.5rem] bg-white p-6 shadow-lg ring-1 ring-slate-200">
+    <a href="/topics/{{ topic.id }}" class="text-xl font-bold hover:text-cyan">{{ topic.name }}</a>
+    <p class="mt-2 text-sm text-slate-500">{{ topic.domain_name or "domain n/a" }} / {{ topic.field_name or "field n/a" }}</p>
+    <div class="mt-4 flex gap-3 text-sm">
+      <span class="rounded-full bg-sky px-3 py-2">{{ topic.works_count }} works</span>
+      <span class="rounded-full bg-slate-100 px-3 py-2">{{ topic.cited_by_count }} citations</span>
+    </div>
+  </article>
+  {% else %}
+  <article class="rounded-[1.5rem] bg-white p-6 shadow-lg ring-1 ring-slate-200 text-slate-500">Тем пока нет.</article>
+  {% endfor %}
+</section>
+{% endblock %}

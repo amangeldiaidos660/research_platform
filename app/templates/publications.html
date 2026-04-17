@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Публикации{% endblock %}
+{% block content %}
+<section class="rounded-[2rem] bg-white p-6 shadow-lg ring-1 ring-slate-200">
+  <h2 class="text-3xl font-bold">Публикации</h2>
+  <form method="get" class="mt-6 grid gap-4 md:grid-cols-5">
+    <input type="text" name="q" value="{{ filters.q or '' }}" placeholder="Поиск по title/abstract" class="rounded-2xl border border-slate-200 px-4 py-3">
+    <input type="number" name="year" value="{{ filters.year or '' }}" placeholder="Год" class="rounded-2xl border border-slate-200 px-4 py-3">
+    <select name="topic_id" class="rounded-2xl border border-slate-200 px-4 py-3">
+      <option value="">Все темы</option>
+      {% for topic in topics %}
+      <option value="{{ topic.id }}" {% if filters.topic_id == topic.id %}selected{% endif %}>{{ topic.name }}</option>
+      {% endfor %}
+    </select>
+    <select name="author_id" class="rounded-2xl border border-slate-200 px-4 py-3">
+      <option value="">Все авторы</option>
+      {% for author in authors %}
+      <option value="{{ author.id }}" {% if filters.author_id == author.id %}selected{% endif %}>{{ author.display_name }}</option>
+      {% endfor %}
+    </select>
+    <select name="sort" class="rounded-2xl border border-slate-200 px-4 py-3">
+      <option value="recent" {% if filters.sort == 'recent' %}selected{% endif %}>Сначала новые</option>
+      <option value="citations" {% if filters.sort == 'citations' %}selected{% endif %}>По цитированиям</option>
+    </select>
+    <button class="md:col-span-5 rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white">Применить фильтры</button>
+  </form>
+</section>
+
+<section class="mt-6 grid gap-4">
+  {% for item in publications %}
+  <article class="rounded-[1.5rem] bg-white p-6 shadow-lg ring-1 ring-slate-200">
+    <div class="flex flex-wrap items-start justify-between gap-4">
+      <div>
+        <a href="/publications/{{ item.id }}" class="text-xl font-bold hover:text-cyan">{{ item.title }}</a>
+        <p class="mt-2 text-sm text-slate-500">{{ item.publication_year or "n/a" }} | {{ item.type or "unknown type" }} | {{ item.primary_location_source or "source n/a" }}</p>
+      </div>
+      <span class="rounded-full bg-sky px-3 py-2 text-sm font-semibold">{{ item.cited_by_count }} citations</span>
+    </div>
+    {% if item.abstract_summary %}
+    <p class="mt-4 text-sm leading-7 text-slate-600">{{ item.abstract_summary }}</p>
+    {% endif %}
+    {% if item.keywords_cache %}
+    <p class="mt-4 text-xs uppercase tracking-[0.2em] text-slate-400">{{ item.keywords_cache }}</p>
+    {% endif %}
+  </article>
+  {% else %}
+  <article class="rounded-[1.5rem] bg-white p-6 shadow-lg ring-1 ring-slate-200 text-slate-500">Публикаций пока нет. Сначала выполните ingestion.</article>
+  {% endfor %}
+</section>
+{% endblock %}

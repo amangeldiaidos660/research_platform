@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     app_host: str = Field(default="0.0.0.0", alias="APP_HOST")
     app_port: int = Field(default=8000, alias="APP_PORT")
     app_debug: bool = Field(default=True, alias="APP_DEBUG")
+    auto_create_tables: bool = Field(default=True, alias="AUTO_CREATE_TABLES")
 
     postgres_db: str = Field(default="research_platform", alias="POSTGRES_DB")
     postgres_user: str = Field(default="postgres", alias="POSTGRES_USER")
@@ -33,6 +34,7 @@ class Settings(BaseSettings):
     openalex_base_url: str = Field(default="https://api.openalex.org", alias="OPENALEX_BASE_URL")
     openalex_api_key: str = Field(default="", alias="OPENALEX_API_KEY")
     openalex_mailto: str = Field(default="", alias="OPENALEX_MAILTO")
+    openalex_default_per_page: int = Field(default=25, alias="OPENALEX_DEFAULT_PER_PAGE")
 
 
 @lru_cache
@@ -41,4 +43,3 @@ def get_settings() -> Settings:
 
 
 settings = get_settings()
-

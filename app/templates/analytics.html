@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Аналитика{% endblock %}
+{% block content %}
+<section class="grid gap-4 md:grid-cols-4">
+  <article class="rounded-[1.5rem] bg-white p-6 shadow-lg ring-1 ring-slate-200"><div class="text-xs uppercase text-slate-400">Публикации</div><div class="mt-2 text-3xl font-bold">{{ analytics.publications_total }}</div></article>
+  <article class="rounded-[1.5rem] bg-white p-6 shadow-lg ring-1 ring-slate-200"><div class="text-xs uppercase text-slate-400">Авторы</div><div class="mt-2 text-3xl font-bold">{{ analytics.authors_total }}</div></article>
+  <article class="rounded-[1.5rem] bg-white p-6 shadow-lg ring-1 ring-slate-200"><div class="text-xs uppercase text-slate-400">Темы</div><div class="mt-2 text-3xl font-bold">{{ analytics.topics_total }}</div></article>
+  <article class="rounded-[1.5rem] bg-white p-6 shadow-lg ring-1 ring-slate-200"><div class="text-xs uppercase text-slate-400">Citations</div><div class="mt-2 text-3xl font-bold">{{ analytics.citations_total }}</div></article>
+</section>
+
+<section class="mt-6 grid gap-6 lg:grid-cols-2">
+  <article class="rounded-[2rem] bg-white p-8 shadow-lg ring-1 ring-slate-200">
+    <h3 class="text-2xl font-bold">Топ авторов</h3>
+    <ul class="mt-4 space-y-3">
+      {% for item in analytics.top_authors %}
+      <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3"><span>{{ item.label }}</span><span class="font-semibold">{{ item.value }}</span></li>
+      {% else %}
+      <li class="text-slate-500">Нет данных.</li>
+      {% endfor %}
+    </ul>
+  </article>
+  <article class="rounded-[2rem] bg-white p-8 shadow-lg ring-1 ring-slate-200">
+    <h3 class="text-2xl font-bold">Топ публикаций</h3>
+    <ul class="mt-4 space-y-3">
+      {% for item in analytics.top_publications %}
+      <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3"><span>{{ item.label }}</span><span class="font-semibold">{{ item.value }}</span></li>
+      {% else %}
+      <li class="text-slate-500">Нет данных.</li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+
+<section class="mt-6 grid gap-6 lg:grid-cols-2">
+  <article class="rounded-[2rem] bg-white p-8 shadow-lg ring-1 ring-slate-200">
+    <h3 class="text-2xl font-bold">Тренды по годам</h3>
+    <ul class="mt-4 space-y-3">
+      {% for item in analytics.publications_by_year %}
+      <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3"><span>{{ item.label }}</span><span class="font-semibold">{{ item.value }}</span></li>
+      {% else %}
+      <li class="text-slate-500">Нет данных.</li>
+      {% endfor %}
+    </ul>
+  </article>
+  <article class="rounded-[2rem] bg-white p-8 shadow-lg ring-1 ring-slate-200">
+    <h3 class="text-2xl font-bold">Распределение по темам</h3>
+    <ul class="mt-4 space-y-3">
+      {% for item in analytics.publications_by_topic %}
+      <li class="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3"><span>{{ item.label }}</span><span class="font-semibold">{{ item.value }}</span></li>
+      {% else %}
+      <li class="text-slate-500">Нет данных.</li>
+      {% endfor %}
+    </ul>
+  </article>
+</section>
+{% endblock %}
