@@ -16,6 +16,20 @@
         Подробное описание темы пока недоступно, но ниже можно посмотреть динамику и связанные статьи.
       </p>
       {% endif %}
+      <button
+        data-action="subscribe-topic"
+        data-status-target="#tool-status"
+        data-topic='{{ {
+          "openalex_id": topic.openalex_id,
+          "name": topic.name,
+          "description": topic.description,
+          "works_count": topic.works_count,
+          "keywords_cache": topic.keywords_cache
+        } | tojson }}'
+        class="mt-5 rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+      >
+        Подписаться на тему
+      </button>
     </div>
     <div class="rounded-[1.5rem] bg-mist p-5 lg:max-w-xs">
       <div class="text-xs uppercase tracking-[0.18em] text-slate-500">Что посмотреть дальше</div>
@@ -32,6 +46,8 @@
   </div>
   {% endif %}
 </section>
+
+<div id="tool-status" class="mt-4 hidden rounded-2xl bg-mist px-4 py-3 text-sm text-slate-700"></div>
 
 <section class="mt-6 grid gap-6 lg:grid-cols-2">
   <article class="rounded-[2rem] bg-white p-8 shadow-soft ring-1 ring-slate-200">
@@ -70,4 +86,5 @@
 {% else %}
 <section class="rounded-[2rem] bg-white p-8 shadow-soft ring-1 ring-slate-200 text-slate-500">Тема не найдена.</section>
 {% endif %}
+<script src="/static/user-tools.js"></script>
 {% endblock %}

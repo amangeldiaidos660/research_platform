@@ -45,23 +45,13 @@
 
   <article class="rounded-[2rem] bg-white p-8 shadow-soft ring-1 ring-slate-200">
     <h3 class="text-2xl font-bold text-ink">Ваши инструменты</h3>
-    <div id="profile-actions" class="mt-6 hidden grid gap-3">
-      <button id="add-favorite-btn" class="rounded-2xl bg-cloud px-4 py-4 text-left transition hover:bg-tide">
-        <span class="block font-semibold text-ink">Избранные статьи</span>
-        <span class="mt-1 block text-sm text-slate-600">Сохранить заметную статью по теме mental health.</span>
-      </button>
-      <button id="save-search-btn" class="rounded-2xl bg-cloud px-4 py-4 text-left transition hover:bg-tide">
-        <span class="block font-semibold text-ink">Сохраненные поиски</span>
-        <span class="mt-1 block text-sm text-slate-600">Запомнить частый поисковый запрос.</span>
-      </button>
-      <button id="create-collection-btn" class="rounded-2xl bg-cloud px-4 py-4 text-left transition hover:bg-tide">
-        <span class="block font-semibold text-ink">Подборки</span>
-        <span class="mt-1 block text-sm text-slate-600">Создать подборку для обзора литературы.</span>
-      </button>
-      <button id="subscribe-topic-btn" class="rounded-2xl bg-cloud px-4 py-4 text-left transition hover:bg-tide">
-        <span class="block font-semibold text-ink">Подписки на темы</span>
-        <span class="mt-1 block text-sm text-slate-600">Подписаться на первую доступную тему.</span>
-      </button>
+    <div id="profile-actions" class="mt-6 hidden rounded-2xl bg-cloud p-4">
+      <form id="collection-form" class="grid gap-3">
+        <label class="text-sm font-semibold text-ink" for="collection-name">Новая подборка</label>
+        <input id="collection-name" name="name" required maxlength="255" placeholder="Например: диплом по mental health" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20">
+        <textarea id="collection-description" name="description" rows="2" placeholder="Короткое описание" class="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20"></textarea>
+        <button class="rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">Создать подборку</button>
+      </form>
     </div>
 
     <div id="profile-empty" class="mt-6 rounded-2xl bg-cloud px-4 py-4 text-sm leading-6 text-slate-600">
@@ -108,10 +98,7 @@
   const savedSearchesList = document.getElementById("saved-searches-list");
   const collectionsList = document.getElementById("collections-list");
   const subscriptionsList = document.getElementById("subscriptions-list");
-  const addFavoriteBtn = document.getElementById("add-favorite-btn");
-  const saveSearchBtn = document.getElementById("save-search-btn");
-  const createCollectionBtn = document.getElementById("create-collection-btn");
-  const subscribeTopicBtn = document.getElementById("subscribe-topic-btn");
+  const collectionForm = document.getElementById("collection-form");
 
   function decodeJwt(token) {
     const payload = token.split(".")[1];
@@ -181,7 +168,7 @@
     profileStatus.classList.remove("hidden");
   }
 
-  function listItems(element, items, getText) {
+  function listItems(element, items, renderItem) {
     element.innerHTML = "";
     if (!items.length) {
       const empty = document.createElement("li");
@@ -192,9 +179,29 @@
     items.slice(0, 5).forEach((item) => {
       const li = document.createElement("li");
       li.className = "rounded-xl bg-cloud px-3 py-2";
-      li.textContent = getText(item);
+      renderItem(li, item);
       element.appendChild(li);
     });
+  }
+
+  function createLink(href, text) {
+    const link = document.createElement("a");
+    link.href = href;
+    link.textContent = text;
+    link.className = "font-semibold text-ink hover:text-pine";
+    return link;
+  }
+
+  function savedSearchHref(item) {
+    const params = new URLSearchParams();
+    params.set("q", item.query);
+    const filters = item.filters_json || {};
+    ["year", "topic_id", "author_id", "sort"].forEach((key) => {
+      if (filters[key] !== null && filters[key] !== undefined && filters[key] !== "") {
+        params.set(key, filters[key]);
+      }
+    });
+    return `/publications?${params.toString()}`;
   }
 
   async function apiFetch(session, url, options = {}) {
@@ -221,23 +228,36 @@
         apiFetch(session, "/api/v1/collections"),
         apiFetch(session, "/api/v1/subscriptions")
       ]);
-      listItems(favoritesList, favorites, (item) => item.publication.title);
-      listItems(savedSearchesList, savedSearches, (item) => item.name);
-      listItems(collectionsList, collections, (item) => `${item.name} (${item.items.length})`);
-      listItems(subscriptionsList, subscriptions, (item) => item.topic.name);
+      listItems(favoritesList, favorites, (li, item) => {
+        li.appendChild(createLink(`/publications/${item.publication.id}`, item.publication.title));
+      });
+      listItems(savedSearchesList, savedSearches, (li, item) => {
+        li.appendChild(createLink(savedSearchHref(item), item.name));
+      });
+      listItems(collectionsList, collections, (li, item) => {
+        const title = document.createElement("div");
+        title.className = "font-semibold text-ink";
+        title.textContent = `${item.name} (${item.items.length})`;
+        li.appendChild(title);
+        if (item.description) {
+          const description = document.createElement("p");
+          description.className = "mt-1 text-xs text-slate-500";
+          description.textContent = item.description;
+          li.appendChild(description);
+        }
+        item.items.slice(0, 4).forEach((collectionItem) => {
+          const row = document.createElement("div");
+          row.className = "mt-2";
+          row.appendChild(createLink(`/publications/${collectionItem.publication.id}`, collectionItem.publication.title));
+          li.appendChild(row);
+        });
+      });
+      listItems(subscriptionsList, subscriptions, (li, item) => {
+        li.appendChild(createLink(`/topics/${item.topic.id}`, item.topic.name));
+      });
     } catch {
       setStatus("Не удалось загрузить личные данные. Обновите страницу и попробуйте снова.");
     }
-  }
-
-  async function firstPublication() {
-    const items = await fetch("/api/v1/publications?q=mental%20health&sort=citations&limit=1").then((response) => response.json());
-    return items[0];
-  }
-
-  async function firstTopic() {
-    const items = await fetch("/api/v1/topics?limit=1").then((response) => response.json());
-    return items[0];
   }
 
   const supabaseUrl = googleSignIn.dataset.supabaseUrl;
@@ -257,67 +277,23 @@
     showGuest();
   });
 
-  addFavoriteBtn.addEventListener("click", async () => {
+  collectionForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
     const session = readStoredSession();
     if (!session) return showGuest();
-    setStatus("Сохраняем статью...");
-    const publication = await firstPublication();
-    if (!publication) return setStatus("Сначала найдите публикации в каталоге.");
-    await apiFetch(session, "/api/v1/favorites", {
-      method: "POST",
-      body: JSON.stringify({ publication })
-    });
-    setStatus("Статья добавлена в избранное.");
-    loadProfileData(session);
-  });
-
-  saveSearchBtn.addEventListener("click", async () => {
-    const session = readStoredSession();
-    if (!session) return showGuest();
-    await apiFetch(session, "/api/v1/saved-searches", {
-      method: "POST",
-      body: JSON.stringify({
-        name: "Mental health",
-        query: "mental health",
-        filters_json: { sort: "citations" }
-      })
-    });
-    setStatus("Поиск сохранен.");
-    loadProfileData(session);
-  });
-
-  createCollectionBtn.addEventListener("click", async () => {
-    const session = readStoredSession();
-    if (!session) return showGuest();
+    const formData = new FormData(collectionForm);
+    const name = String(formData.get("name") || "").trim();
+    const description = String(formData.get("description") || "").trim();
+    if (!name) return setStatus("Укажите название подборки.");
     await apiFetch(session, "/api/v1/collections", {
       method: "POST",
       body: JSON.stringify({
-        name: "Обзор литературы",
-        description: "Материалы для первого чтения"
+        name,
+        description: description || null
       })
     });
     setStatus("Подборка создана.");
-    loadProfileData(session);
-  });
-
-  subscribeTopicBtn.addEventListener("click", async () => {
-    const session = readStoredSession();
-    if (!session) return showGuest();
-    const topic = await firstTopic();
-    if (!topic) return setStatus("Сначала обновите каталог тем.");
-    await apiFetch(session, "/api/v1/subscriptions", {
-      method: "POST",
-      body: JSON.stringify({
-        topic: {
-          openalex_id: topic.openalex_id,
-          name: topic.name,
-          description: null,
-          works_count: topic.works_count || 0,
-          keywords_cache: null
-        }
-      })
-    });
-    setStatus("Подписка добавлена.");
+    collectionForm.reset();
     loadProfileData(session);
   });
 

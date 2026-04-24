@@ -12,6 +12,38 @@
       <p class="mt-4 text-base leading-7 text-slate-600">
         Эта карточка помогает быстро понять, о чем работа, насколько она заметна и к каким темам относится.
       </p>
+      <div class="mt-5 flex flex-wrap gap-3">
+        <button
+          data-action="save-favorite"
+          data-status-target="#tool-status"
+          data-publication='{{ {
+            "openalex_id": publication.openalex_id,
+            "title": publication.title,
+            "publication_year": publication.publication_year,
+            "cited_by_count": publication.cited_by_count,
+            "doi": publication.doi,
+            "primary_location_source": publication.primary_location_source
+          } | tojson }}'
+          class="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+        >
+          Добавить в избранное
+        </button>
+        <button
+          data-action="add-to-collection"
+          data-status-target="#tool-status"
+          data-publication='{{ {
+            "openalex_id": publication.openalex_id,
+            "title": publication.title,
+            "publication_year": publication.publication_year,
+            "cited_by_count": publication.cited_by_count,
+            "doi": publication.doi,
+            "primary_location_source": publication.primary_location_source
+          } | tojson }}'
+          class="rounded-full bg-cloud px-4 py-2 text-sm font-semibold text-ink transition hover:bg-tide"
+        >
+          Добавить в подборку
+        </button>
+      </div>
     </div>
     <div class="rounded-[1.5rem] bg-mist p-5 lg:max-w-xs">
       <div class="text-xs uppercase tracking-[0.18em] text-slate-500">Коротко о значимости</div>
@@ -35,6 +67,8 @@
     </div>
   </div>
 </section>
+
+<div id="tool-status" class="mt-4 hidden rounded-2xl bg-mist px-4 py-3 text-sm text-slate-700"></div>
 
 <section class="mt-6 grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
   <article class="rounded-[2rem] bg-white p-8 shadow-soft ring-1 ring-slate-200">
@@ -91,4 +125,5 @@
   Статья не найдена.
 </section>
 {% endif %}
+<script src="/static/user-tools.js"></script>
 {% endblock %}

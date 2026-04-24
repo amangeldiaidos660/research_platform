@@ -37,14 +37,35 @@
   </form>
 </section>
 
-<section class="mt-6 flex items-center justify-between gap-4">
+<section class="mt-6 flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
   <div class="text-sm text-slate-600">
     Найдено результатов: <span class="font-semibold text-ink">{{ publications|length }}</span>
   </div>
-  <div class="text-sm text-slate-500">
+  <div class="flex flex-col gap-3 text-sm text-slate-500 lg:items-end">
+    {% if filters.q %}
+    <button
+      data-action="save-search"
+      data-status-target="#tool-status"
+      data-search='{{ {
+        "name": filters.q,
+        "query": filters.q,
+        "filters_json": {
+          "year": filters.year,
+          "topic_id": filters.topic_id,
+          "author_id": filters.author_id,
+          "sort": filters.sort
+        }
+      } | tojson }}'
+      class="rounded-full bg-cloud px-4 py-2 font-semibold text-ink transition hover:bg-tide"
+    >
+      Сохранить этот поиск
+    </button>
+    {% endif %}
     Что означают ссылки: чем больше ссылок у статьи, тем чаще на нее опираются другие публикации.
   </div>
 </section>
+
+<div id="tool-status" class="mt-4 hidden rounded-2xl bg-mist px-4 py-3 text-sm text-slate-700"></div>
 
 <section class="mt-4 grid gap-4">
   {% for item in publications %}
@@ -84,6 +105,38 @@
         <a href="/publications/{{ item.id }}" class="mt-5 inline-flex rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
           Открыть карточку
         </a>
+        <div class="mt-3 grid gap-2">
+          <button
+            data-action="save-favorite"
+            data-status-target="#tool-status"
+            data-publication='{{ {
+              "openalex_id": item.openalex_id,
+              "title": item.title,
+              "publication_year": item.publication_year,
+              "cited_by_count": item.cited_by_count,
+              "doi": item.doi,
+              "primary_location_source": item.primary_location_source
+            } | tojson }}'
+            class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink ring-1 ring-slate-200 transition hover:bg-cloud"
+          >
+            В избранное
+          </button>
+          <button
+            data-action="add-to-collection"
+            data-status-target="#tool-status"
+            data-publication='{{ {
+              "openalex_id": item.openalex_id,
+              "title": item.title,
+              "publication_year": item.publication_year,
+              "cited_by_count": item.cited_by_count,
+              "doi": item.doi,
+              "primary_location_source": item.primary_location_source
+            } | tojson }}'
+            class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink ring-1 ring-slate-200 transition hover:bg-cloud"
+          >
+            В подборку
+          </button>
+        </div>
       </div>
     </div>
   </article>
@@ -93,4 +146,5 @@
   </article>
   {% endfor %}
 </section>
+<script src="/static/user-tools.js"></script>
 {% endblock %}
