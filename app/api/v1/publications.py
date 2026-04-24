@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.api.query_params import parse_optional_int_query
 from app.db.session import get_db
 from app.schemas.domain import AuthorRead, PublicationDetailRead, PublicationRead, TopicSlimRead
+from app.services.collector_service import ingest_works, should_refresh_ingestion
 from app.services.repository_service import get_publication_detail, list_publications
 
 router = APIRouter()
@@ -33,6 +34,34 @@ async def read_publications(
         sort=sort,
         limit=limit,
     )
+    filter_value = f"publication_year:{parsed_year}" if parsed_year else None
+    if q and (
+        not items
+        or should_refresh_ingestion(
+            db,
+            entity_type="works",
+            query_text=q,
+            filter=filter_value,
+        )
+    ):
+        ingest_works(
+            db,
+            search=q,
+            filter=filter_value,
+            per_page=min(limit, 50),
+            pages=1,
+            use_cursor=False,
+            sort="publication_date:desc",
+        )
+        items = list_publications(
+            db,
+            q=q,
+            year=parsed_year,
+            topic_id=parsed_topic_id,
+            author_id=parsed_author_id,
+            sort=sort,
+            limit=limit,
+        )
     return [PublicationRead.model_validate(item) for item in items]
 
 

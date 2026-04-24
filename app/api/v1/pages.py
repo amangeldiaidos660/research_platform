@@ -9,6 +9,7 @@ from app.api.query_params import parse_optional_int_query
 from app.core.config import settings
 from app.db.session import get_db
 from app.services.analytics_service import get_dashboard_analytics, get_topic_growth
+from app.services.collector_service import ingest_works, should_refresh_ingestion
 from app.services.repository_service import (
     dashboard_counts,
     get_author_detail,
@@ -65,6 +66,34 @@ async def publications_page(
         sort=sort,
         limit=50,
     )
+    filter_value = f"publication_year:{parsed_year}" if parsed_year else None
+    if q and (
+        not items
+        or should_refresh_ingestion(
+            db,
+            entity_type="works",
+            query_text=q,
+            filter=filter_value,
+        )
+    ):
+        ingest_works(
+            db,
+            search=q,
+            filter=filter_value,
+            per_page=25,
+            pages=1,
+            use_cursor=False,
+            sort="publication_date:desc",
+        )
+        items = list_publications(
+            db,
+            q=q,
+            year=parsed_year,
+            topic_id=parsed_topic_id,
+            author_id=parsed_author_id,
+            sort=sort,
+            limit=50,
+        )
     topics = list_topics(db, limit=100)
     authors = list_authors(db, limit=100)
     return templates.TemplateResponse(

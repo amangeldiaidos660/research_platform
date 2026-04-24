@@ -17,6 +17,7 @@ class OpenAlexListQuery(BaseModel):
 class IngestRequest(BaseModel):
     search: str | None = None
     filter: str | None = None
+    sort: str | None = None
     per_page: int = Field(default=25, ge=1, le=100)
     pages: int = Field(default=1, ge=1, le=20)
     cursor: bool = False

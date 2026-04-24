@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/v1/ingestion/refresh-defaults",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}

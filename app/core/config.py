@@ -35,6 +35,7 @@ class Settings(BaseSettings):
     openalex_api_key: str = Field(default="", alias="OPENALEX_API_KEY")
     openalex_mailto: str = Field(default="", alias="OPENALEX_MAILTO")
     openalex_default_per_page: int = Field(default=25, alias="OPENALEX_DEFAULT_PER_PAGE")
+    openalex_search_cache_ttl_hours: int = Field(default=24, alias="OPENALEX_SEARCH_CACHE_TTL_HOURS")
 
     supabase_url: str = Field(default="", alias="SUPABASE_URL")
 

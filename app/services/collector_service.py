@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime, timedelta
 
+from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.db.models import (
     Author,
     IngestionJob,
@@ -36,6 +39,66 @@ WORKS_SELECT = ",".join(
 
 AUTHORS_SELECT = "id,display_name,orcid,works_count,cited_by_count,summary_stats,last_known_institutions"
 TOPICS_SELECT = "id,display_name,description,works_count,cited_by_count,keywords,subfield,field,domain"
+
+
+def _query_key(value: str | None) -> str | None:
+    return value.strip().lower() if value else None
+
+
+def _filters_match(filters_json: str | None, filter_value: str | None) -> bool:
+    if not filters_json:
+        return filter_value is None
+    try:
+        filters = json.loads(filters_json)
+    except json.JSONDecodeError:
+        return False
+    return filters.get("filter") == filter_value
+
+
+def last_completed_ingestion_at(
+    db: Session,
+    *,
+    entity_type: str,
+    query_text: str | None,
+    filter: str | None,
+) -> datetime | None:
+    query_key = _query_key(query_text)
+    jobs = (
+        db.query(IngestionJob)
+        .filter(
+            IngestionJob.entity_type == entity_type,
+            IngestionJob.status == "completed",
+        )
+        .order_by(desc(IngestionJob.updated_at), desc(IngestionJob.id))
+        .limit(20)
+        .all()
+    )
+    for job in jobs:
+        if _query_key(job.query_text) == query_key and _filters_match(job.filters_json, filter):
+            return job.updated_at
+    return None
+
+
+def should_refresh_ingestion(
+    db: Session,
+    *,
+    entity_type: str,
+    query_text: str | None,
+    filter: str | None,
+    ttl_hours: int | None = None,
+) -> bool:
+    completed_at = last_completed_ingestion_at(
+        db,
+        entity_type=entity_type,
+        query_text=query_text,
+        filter=filter,
+    )
+    if completed_at is None:
+        return True
+    if completed_at.tzinfo is None:
+        completed_at = completed_at.replace(tzinfo=UTC)
+    ttl = timedelta(hours=ttl_hours or settings.openalex_search_cache_ttl_hours)
+    return datetime.now(UTC) - completed_at >= ttl
 
 
 def start_ingestion_job(
@@ -199,6 +262,7 @@ def ingest_works(
     per_page: int,
     pages: int,
     use_cursor: bool,
+    sort: str | None = None,
     select: str | None = None,
 ) -> IngestionJob:
     client = OpenAlexClient()
@@ -218,6 +282,7 @@ def ingest_works(
             search=search,
             filter=filter,
             select=select or WORKS_SELECT,
+            sort=sort,
             per_page=per_page,
             pages=pages,
             use_cursor=use_cursor,
