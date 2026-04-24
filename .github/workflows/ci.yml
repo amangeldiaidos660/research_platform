@@ -13,10 +13,10 @@ jobs:
       APP_ENV: test
       APP_DEBUG: "false"
       AUTO_CREATE_TABLES: "false"
-      DATABASE_URL: sqlite+pysqlite:///:memory:
+      DATABASE_URL: "sqlite+pysqlite:///:memory:"
       JWT_SECRET_KEY: test-secret
-      SUPABASE_URL: https://test.supabase.co
-      OPENALEX_BASE_URL: https://api.openalex.org
+      SUPABASE_URL: "https://test.supabase.co"
+      OPENALEX_BASE_URL: "https://api.openalex.org"
       OPENALEX_API_KEY: ""
       OPENALEX_MAILTO: ""
       OPENALEX_DEFAULT_PER_PAGE: "25"
