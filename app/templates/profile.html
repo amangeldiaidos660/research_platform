@@ -1,114 +1,66 @@
 {% extends "base.html" %}
-{% block title %}Мой кабинет{% endblock %}
+{% block title %}Личный кабинет{% endblock %}
 {% block content %}
-<section class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+<section class="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
   <article class="rounded-[2rem] bg-white p-8 shadow-soft ring-1 ring-slate-200">
-    <h2 class="text-3xl font-bold">Мой кабинет</h2>
+    <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Личный кабинет</p>
+    <h2 class="mt-3 text-3xl font-bold text-ink">Войдите, чтобы сохранять исследования</h2>
     <p class="mt-3 text-sm leading-7 text-slate-600">
-      Здесь можно создать аккаунт, войти и затем пользоваться персональными разделами: избранным, подборками, сохраненными поисками и подписками на темы.
+      Сохраняйте полезные публикации, собирайте подборки, возвращайтесь к поискам и следите за темами, которые важны для вашей работы.
     </p>
-    <div class="mt-6 grid gap-6 md:grid-cols-2">
-      <form id="register-form" class="space-y-3 rounded-[1.5rem] bg-cloud p-5">
-        <h3 class="text-lg font-bold">Создать аккаунт</h3>
-        <input name="email" type="email" placeholder="Email" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
-        <input name="username" type="text" placeholder="Имя пользователя" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
-        <input name="full_name" type="text" placeholder="Ваше имя" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
-        <input name="password" type="password" placeholder="Пароль" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
-        <button class="w-full rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">Зарегистрироваться</button>
-      </form>
-      <form id="login-form" class="space-y-3 rounded-[1.5rem] bg-mist p-5">
-        <h3 class="text-lg font-bold">Войти</h3>
-        <input name="email" type="email" placeholder="Email" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
-        <input name="password" type="password" placeholder="Пароль" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
-        <button class="w-full rounded-2xl bg-pine px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-800">Войти</button>
-      </form>
-    </div>
-    <div class="mt-6 rounded-[1.5rem] bg-slate-950 p-4">
-      <div class="mb-2 text-xs uppercase tracking-[0.18em] text-slate-400">Ответ системы</div>
-      <pre id="auth-output" class="min-h-28 overflow-auto text-xs text-slate-100"></pre>
+
+    <div class="mt-8 max-w-md space-y-3">
+      <a
+        id="google-sign-in"
+        href="#"
+        data-supabase-url="{{ supabase_url }}"
+        class="flex w-full items-center justify-center gap-3 rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+      >
+        <span class="flex h-6 w-6 items-center justify-center rounded-full bg-white text-sm font-bold text-ink">G</span>
+        Войти через Google
+      </a>
+      <p class="text-xs leading-6 text-slate-500">
+        После входа вы вернетесь в личный кабинет.
+      </p>
     </div>
   </article>
 
   <article class="rounded-[2rem] bg-white p-8 shadow-soft ring-1 ring-slate-200">
-    <h3 class="text-2xl font-bold">Что будет доступно после входа</h3>
+    <h3 class="text-2xl font-bold text-ink">В личном кабинете</h3>
     <div class="mt-6 grid gap-3">
-      <button data-endpoint="/api/v1/me" class="protected-btn rounded-2xl bg-cloud px-4 py-4 text-left transition hover:bg-tide">
-        <span class="block font-semibold text-ink">Профиль пользователя</span>
-        <span class="mt-1 block text-sm text-slate-600">Базовая информация об аккаунте.</span>
-      </button>
-      <button data-endpoint="/api/v1/favorites" class="protected-btn rounded-2xl bg-cloud px-4 py-4 text-left transition hover:bg-tide">
+      <div class="rounded-2xl bg-cloud px-4 py-4">
         <span class="block font-semibold text-ink">Избранные статьи</span>
-        <span class="mt-1 block text-sm text-slate-600">Материалы, которые вы хотите сохранить и перечитать.</span>
-      </button>
-      <button data-endpoint="/api/v1/saved-searches" class="protected-btn rounded-2xl bg-cloud px-4 py-4 text-left transition hover:bg-tide">
+        <span class="mt-1 block text-sm text-slate-600">Материалы, к которым удобно вернуться позже.</span>
+      </div>
+      <div class="rounded-2xl bg-cloud px-4 py-4">
         <span class="block font-semibold text-ink">Сохраненные поиски</span>
-        <span class="mt-1 block text-sm text-slate-600">Повторный запуск часто используемых запросов.</span>
-      </button>
-      <button data-endpoint="/api/v1/collections" class="protected-btn rounded-2xl bg-cloud px-4 py-4 text-left transition hover:bg-tide">
+        <span class="mt-1 block text-sm text-slate-600">Частые запросы по темам, авторам и годам публикаций.</span>
+      </div>
+      <div class="rounded-2xl bg-cloud px-4 py-4">
         <span class="block font-semibold text-ink">Подборки</span>
-        <span class="mt-1 block text-sm text-slate-600">Собственные наборы материалов по теме или проекту.</span>
-      </button>
-      <button data-endpoint="/api/v1/subscriptions" class="protected-btn rounded-2xl bg-cloud px-4 py-4 text-left transition hover:bg-tide">
+        <span class="mt-1 block text-sm text-slate-600">Собственные списки публикаций для учебы, проекта или обзора литературы.</span>
+      </div>
+      <div class="rounded-2xl bg-cloud px-4 py-4">
         <span class="block font-semibold text-ink">Подписки на темы</span>
-        <span class="mt-1 block text-sm text-slate-600">Следите за интересующими областями знаний.</span>
-      </button>
-    </div>
-    <div class="mt-6 rounded-[1.5rem] bg-mist p-5 text-sm leading-7 text-slate-600">
-      Техническая часть по-прежнему доступна через API, но в пользовательском интерфейсе мы оставляем только понятные сценарии:
-      войти, сохранить полезное и вернуться к материалам позже.
+        <span class="mt-1 block text-sm text-slate-600">Быстрый доступ к направлениям, за которыми вы следите.</span>
+      </div>
     </div>
   </article>
 </section>
 
 <script>
-  const authOutput = document.getElementById("auth-output");
-  const saveToken = (token) => localStorage.setItem("rip_token", token);
-  const getToken = () => localStorage.getItem("rip_token");
+  const googleSignIn = document.getElementById("google-sign-in");
+  const supabaseUrl = googleSignIn.dataset.supabaseUrl;
 
-  async function sendJson(url, payload) {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    const data = await response.json();
-    if (data.access_token) saveToken(data.access_token);
-    authOutput.textContent = JSON.stringify(data, null, 2);
+  if (supabaseUrl) {
+    const redirectTo = `${window.location.origin}/profile`;
+    const authUrl = new URL(`${supabaseUrl}/auth/v1/authorize`);
+    authUrl.searchParams.set("provider", "google");
+    authUrl.searchParams.set("redirect_to", redirectTo);
+    googleSignIn.href = authUrl.toString();
+  } else {
+    googleSignIn.setAttribute("aria-disabled", "true");
+    googleSignIn.classList.add("opacity-60", "pointer-events-none");
   }
-
-  document.getElementById("register-form").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    await sendJson("/api/v1/auth/register", {
-      email: form.get("email"),
-      username: form.get("username"),
-      full_name: form.get("full_name") || null,
-      password: form.get("password")
-    });
-  });
-
-  document.getElementById("login-form").addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    await sendJson("/api/v1/auth/login", {
-      email: form.get("email"),
-      password: form.get("password")
-    });
-  });
-
-  document.querySelectorAll(".protected-btn").forEach((button) => {
-    button.addEventListener("click", async () => {
-      const token = getToken();
-      if (!token) {
-        authOutput.textContent = "Сначала войдите или зарегистрируйтесь.";
-        return;
-      }
-      const response = await fetch(button.dataset.endpoint, {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      const data = await response.json();
-      authOutput.textContent = JSON.stringify(data, null, 2);
-    });
-  });
 </script>
 {% endblock %}

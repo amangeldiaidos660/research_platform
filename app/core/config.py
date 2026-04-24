@@ -36,6 +36,8 @@ class Settings(BaseSettings):
     openalex_mailto: str = Field(default="", alias="OPENALEX_MAILTO")
     openalex_default_per_page: int = Field(default=25, alias="OPENALEX_DEFAULT_PER_PAGE")
 
+    supabase_url: str = Field(default="", alias="SUPABASE_URL")
+
 
 @lru_cache
 def get_settings() -> Settings:

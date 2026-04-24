@@ -185,5 +185,5 @@ async def profile_page(request: Request) -> HTMLResponse:
     return templates.TemplateResponse(
         request=request,
         name="profile.html",
-        context=base_context(request),
+        context=base_context(request) | {"supabase_url": settings.supabase_url.rstrip("/")},
     )

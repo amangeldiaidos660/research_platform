@@ -1,59 +1,77 @@
 {% extends "base.html" %}
-{% block title %}Служебная загрузка данных{% endblock %}
+{% block title %}Обновление каталога{% endblock %}
 {% block content %}
 <section class="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
   <article class="rounded-[2rem] bg-white p-8 shadow-soft ring-1 ring-slate-200">
-    <div class="rounded-full bg-amber/10 px-4 py-2 text-sm font-semibold text-amber">
-      Служебный раздел для администратора или разработчика
-    </div>
-    <h2 class="mt-5 text-3xl font-bold">Загрузка данных из OpenAlex</h2>
+    <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Обновление каталога</p>
+    <h2 class="mt-3 text-3xl font-bold text-ink">Добавьте свежие материалы</h2>
     <p class="mt-3 text-sm leading-7 text-slate-600">
-      Эта страница нужна для обновления локальной базы. Обычному пользователю сюда заходить не обязательно:
-      для чтения статей и обзора достаточно разделов тем, статей и обзора.
+      Выберите, какие материалы обновить, укажите тему и запустите поиск. Новые публикации, авторы и темы появятся в каталоге после обработки.
     </p>
+
     <form id="ingestion-form" class="mt-6 space-y-4">
-      <select name="entity" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
-        <option value="works">Публикации</option>
-        <option value="authors">Авторы</option>
-        <option value="topics">Темы</option>
-      </select>
-      <input type="text" name="search" placeholder="Например: machine learning" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
-      <input type="text" name="filter" placeholder="Например: publication_year:2024" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
-      <div class="grid grid-cols-2 gap-4">
-        <input type="number" name="per_page" value="25" min="1" max="100" class="rounded-2xl border border-slate-200 px-4 py-3">
-        <input type="number" name="pages" value="1" min="1" max="20" class="rounded-2xl border border-slate-200 px-4 py-3">
-      </div>
-      <label class="flex items-center gap-3 text-sm text-slate-600">
-        <input type="checkbox" name="cursor" class="rounded">
-        Использовать cursor pagination
+      <label class="block text-sm font-semibold text-ink">
+        Что обновить
+        <select name="entity" class="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3">
+          <option value="works">Публикации</option>
+          <option value="authors">Авторы</option>
+          <option value="topics">Темы</option>
+        </select>
       </label>
-      <button class="w-full rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">Запустить загрузку</button>
+
+      <label class="block text-sm font-semibold text-ink">
+        Тема или поисковый запрос
+        <input type="text" name="search" placeholder="Например: mental health" class="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3">
+      </label>
+
+      <label class="block text-sm font-semibold text-ink">
+        Год публикации
+        <input type="number" name="year" placeholder="Например: 2024" min="1900" max="2100" class="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3">
+      </label>
+
+      <div class="grid grid-cols-2 gap-4">
+        <label class="block text-sm font-semibold text-ink">
+          На странице
+          <input type="number" name="per_page" value="25" min="1" max="100" class="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3">
+        </label>
+        <label class="block text-sm font-semibold text-ink">
+          Страниц
+          <input type="number" name="pages" value="1" min="1" max="20" class="mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3">
+        </label>
+      </div>
+
+      <button class="w-full rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">Обновить каталог</button>
     </form>
-    <pre id="ingestion-result" class="mt-4 min-h-32 overflow-auto rounded-2xl bg-slate-950 p-4 text-xs text-slate-100"></pre>
+
+    <div id="ingestion-result" class="mt-4 rounded-2xl bg-mist px-4 py-4 text-sm leading-6 text-slate-700">
+      Результат обновления появится здесь.
+    </div>
   </article>
 
   <article class="rounded-[2rem] bg-white p-8 shadow-soft ring-1 ring-slate-200">
-    <h3 class="text-2xl font-bold">Состояние локальной базы</h3>
+    <h3 class="text-2xl font-bold text-ink">Состояние каталога</h3>
     <div class="mt-6 grid grid-cols-2 gap-4">
       <div class="rounded-2xl bg-cloud p-4"><div class="text-xs uppercase tracking-[0.18em] text-slate-500">Статьи</div><div class="mt-2 text-2xl font-bold">{{ counts.publications_total }}</div></div>
       <div class="rounded-2xl bg-cloud p-4"><div class="text-xs uppercase tracking-[0.18em] text-slate-500">Авторы</div><div class="mt-2 text-2xl font-bold">{{ counts.authors_total }}</div></div>
       <div class="rounded-2xl bg-cloud p-4"><div class="text-xs uppercase tracking-[0.18em] text-slate-500">Темы</div><div class="mt-2 text-2xl font-bold">{{ counts.topics_total }}</div></div>
       <div class="rounded-2xl bg-cloud p-4"><div class="text-xs uppercase tracking-[0.18em] text-slate-500">Ссылки</div><div class="mt-2 text-2xl font-bold">{{ counts.citations_total }}</div></div>
     </div>
-    <h3 class="mt-8 text-2xl font-bold">История загрузок</h3>
+
+    <h3 class="mt-8 text-2xl font-bold text-ink">Последние обновления</h3>
     <ul class="mt-4 space-y-3">
       {% for job in jobs %}
       <li class="rounded-2xl bg-cloud px-4 py-4">
         <div class="flex items-center justify-between gap-4">
-          <span class="font-semibold">{{ job.entity_type }}</span>
+          <span class="font-semibold">
+            {% if job.entity_type == "works" %}Публикации{% elif job.entity_type == "authors" %}Авторы{% else %}Темы{% endif %}
+          </span>
           <span class="text-xs uppercase tracking-[0.2em] text-slate-500">{{ job.status }}</span>
         </div>
-        <p class="mt-2 text-sm text-slate-500">Поисковый запрос: {{ job.query_text or "не указан" }}</p>
-        <p class="mt-1 text-xs text-slate-500">обработано {{ job.processed_count }} | добавлено {{ job.inserted_count }} | обновлено {{ job.updated_count }}</p>
-        {% if job.error_message %}<p class="mt-2 text-xs text-rose-600">{{ job.error_message }}</p>{% endif %}
+        <p class="mt-2 text-sm text-slate-500">Запрос: {{ job.query_text or "не указан" }}</p>
+        <p class="mt-1 text-xs text-slate-500">найдено {{ job.processed_count }} | добавлено {{ job.inserted_count }} | обновлено {{ job.updated_count }}</p>
       </li>
       {% else %}
-      <li class="rounded-2xl bg-cloud px-4 py-4 text-slate-500">История пока пустая.</li>
+      <li class="rounded-2xl bg-cloud px-4 py-4 text-slate-500">Обновлений пока не было.</li>
       {% endfor %}
     </ul>
   </article>
@@ -62,25 +80,31 @@
 <script>
   const ingestionForm = document.getElementById("ingestion-form");
   const ingestionResult = document.getElementById("ingestion-result");
+
   ingestionForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const formData = new FormData(ingestionForm);
+    const year = formData.get("year");
     const payload = {
       search: formData.get("search") || null,
-      filter: formData.get("filter") || null,
+      filter: year ? `publication_year:${year}` : null,
       per_page: Number(formData.get("per_page")),
       pages: Number(formData.get("pages")),
-      cursor: formData.get("cursor") === "on"
+      cursor: false
     };
     const entity = formData.get("entity");
-    ingestionResult.textContent = "Loading...";
+    ingestionResult.textContent = "Обновляем каталог...";
     const response = await fetch(`/api/v1/ingestion/${entity}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     });
     const data = await response.json();
-    ingestionResult.textContent = JSON.stringify(data, null, 2);
+    if (!response.ok) {
+      ingestionResult.textContent = "Не удалось обновить каталог. Проверьте параметры и попробуйте снова.";
+      return;
+    }
+    ingestionResult.textContent = `Готово: найдено ${data.processed_count}, добавлено ${data.inserted_count}, обновлено ${data.updated_count}.`;
   });
 </script>
 {% endblock %}
