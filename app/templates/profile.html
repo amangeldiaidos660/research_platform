@@ -45,23 +45,48 @@
 
   <article class="rounded-[2rem] bg-white p-8 shadow-soft ring-1 ring-slate-200">
     <h3 class="text-2xl font-bold text-ink">Ваши инструменты</h3>
-    <div class="mt-6 grid gap-3">
-      <a href="/publications" class="rounded-2xl bg-cloud px-4 py-4 transition hover:bg-tide">
+    <div id="profile-actions" class="mt-6 hidden grid gap-3">
+      <button id="add-favorite-btn" class="rounded-2xl bg-cloud px-4 py-4 text-left transition hover:bg-tide">
         <span class="block font-semibold text-ink">Избранные статьи</span>
-        <span class="mt-1 block text-sm text-slate-600">Материалы, к которым удобно вернуться позже.</span>
-      </a>
-      <a href="/publications" class="rounded-2xl bg-cloud px-4 py-4 transition hover:bg-tide">
+        <span class="mt-1 block text-sm text-slate-600">Сохранить заметную статью по теме mental health.</span>
+      </button>
+      <button id="save-search-btn" class="rounded-2xl bg-cloud px-4 py-4 text-left transition hover:bg-tide">
         <span class="block font-semibold text-ink">Сохраненные поиски</span>
-        <span class="mt-1 block text-sm text-slate-600">Частые запросы по темам, авторам и годам публикаций.</span>
-      </a>
-      <a href="/topics" class="rounded-2xl bg-cloud px-4 py-4 transition hover:bg-tide">
+        <span class="mt-1 block text-sm text-slate-600">Запомнить частый поисковый запрос.</span>
+      </button>
+      <button id="create-collection-btn" class="rounded-2xl bg-cloud px-4 py-4 text-left transition hover:bg-tide">
         <span class="block font-semibold text-ink">Подборки</span>
-        <span class="mt-1 block text-sm text-slate-600">Собственные списки публикаций для учебы, проекта или обзора литературы.</span>
-      </a>
-      <a href="/topics" class="rounded-2xl bg-cloud px-4 py-4 transition hover:bg-tide">
+        <span class="mt-1 block text-sm text-slate-600">Создать подборку для обзора литературы.</span>
+      </button>
+      <button id="subscribe-topic-btn" class="rounded-2xl bg-cloud px-4 py-4 text-left transition hover:bg-tide">
         <span class="block font-semibold text-ink">Подписки на темы</span>
-        <span class="mt-1 block text-sm text-slate-600">Быстрый доступ к направлениям, за которыми вы следите.</span>
-      </a>
+        <span class="mt-1 block text-sm text-slate-600">Подписаться на первую доступную тему.</span>
+      </button>
+    </div>
+
+    <div id="profile-empty" class="mt-6 rounded-2xl bg-cloud px-4 py-4 text-sm leading-6 text-slate-600">
+      Войдите через Google, чтобы открыть персональные инструменты.
+    </div>
+
+    <div id="profile-status" class="mt-5 hidden rounded-2xl bg-mist px-4 py-3 text-sm text-slate-700"></div>
+
+    <div id="profile-lists" class="mt-6 hidden grid gap-4 text-sm">
+      <section>
+        <h4 class="font-semibold text-ink">Избранные статьи</h4>
+        <ul id="favorites-list" class="mt-2 space-y-2 text-slate-600"></ul>
+      </section>
+      <section>
+        <h4 class="font-semibold text-ink">Сохраненные поиски</h4>
+        <ul id="saved-searches-list" class="mt-2 space-y-2 text-slate-600"></ul>
+      </section>
+      <section>
+        <h4 class="font-semibold text-ink">Подборки</h4>
+        <ul id="collections-list" class="mt-2 space-y-2 text-slate-600"></ul>
+      </section>
+      <section>
+        <h4 class="font-semibold text-ink">Подписки на темы</h4>
+        <ul id="subscriptions-list" class="mt-2 space-y-2 text-slate-600"></ul>
+      </section>
     </div>
   </article>
 </section>
@@ -75,6 +100,18 @@
   const userName = document.getElementById("user-name");
   const userEmail = document.getElementById("user-email");
   const logoutBtn = document.getElementById("logout-btn");
+  const profileActions = document.getElementById("profile-actions");
+  const profileEmpty = document.getElementById("profile-empty");
+  const profileStatus = document.getElementById("profile-status");
+  const profileLists = document.getElementById("profile-lists");
+  const favoritesList = document.getElementById("favorites-list");
+  const savedSearchesList = document.getElementById("saved-searches-list");
+  const collectionsList = document.getElementById("collections-list");
+  const subscriptionsList = document.getElementById("subscriptions-list");
+  const addFavoriteBtn = document.getElementById("add-favorite-btn");
+  const saveSearchBtn = document.getElementById("save-search-btn");
+  const createCollectionBtn = document.getElementById("create-collection-btn");
+  const subscribeTopicBtn = document.getElementById("subscribe-topic-btn");
 
   function decodeJwt(token) {
     const payload = token.split(".")[1];
@@ -107,6 +144,9 @@
   function showGuest() {
     guestView.classList.remove("hidden");
     userView.classList.add("hidden");
+    profileActions.classList.add("hidden");
+    profileLists.classList.add("hidden");
+    profileEmpty.classList.remove("hidden");
   }
 
   function showUser(session) {
@@ -130,6 +170,74 @@
 
     guestView.classList.add("hidden");
     userView.classList.remove("hidden");
+    profileActions.classList.remove("hidden");
+    profileLists.classList.remove("hidden");
+    profileEmpty.classList.add("hidden");
+    loadProfileData(session);
+  }
+
+  function setStatus(message) {
+    profileStatus.textContent = message;
+    profileStatus.classList.remove("hidden");
+  }
+
+  function listItems(element, items, getText) {
+    element.innerHTML = "";
+    if (!items.length) {
+      const empty = document.createElement("li");
+      empty.textContent = "Пока пусто.";
+      element.appendChild(empty);
+      return;
+    }
+    items.slice(0, 5).forEach((item) => {
+      const li = document.createElement("li");
+      li.className = "rounded-xl bg-cloud px-3 py-2";
+      li.textContent = getText(item);
+      element.appendChild(li);
+    });
+  }
+
+  async function apiFetch(session, url, options = {}) {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${session.access_token}`,
+        ...(options.headers || {})
+      }
+    });
+    if (!response.ok) {
+      throw new Error("Запрос не выполнен");
+    }
+    if (response.status === 204) return null;
+    return response.json();
+  }
+
+  async function loadProfileData(session) {
+    try {
+      const [favorites, savedSearches, collections, subscriptions] = await Promise.all([
+        apiFetch(session, "/api/v1/favorites"),
+        apiFetch(session, "/api/v1/saved-searches"),
+        apiFetch(session, "/api/v1/collections"),
+        apiFetch(session, "/api/v1/subscriptions")
+      ]);
+      listItems(favoritesList, favorites, (item) => item.publication.title);
+      listItems(savedSearchesList, savedSearches, (item) => item.name);
+      listItems(collectionsList, collections, (item) => `${item.name} (${item.items.length})`);
+      listItems(subscriptionsList, subscriptions, (item) => item.topic.name);
+    } catch {
+      setStatus("Не удалось загрузить личные данные. Обновите страницу и попробуйте снова.");
+    }
+  }
+
+  async function firstPublication() {
+    const items = await fetch("/api/v1/publications?q=mental%20health&sort=citations&limit=1").then((response) => response.json());
+    return items[0];
+  }
+
+  async function firstTopic() {
+    const items = await fetch("/api/v1/topics?limit=1").then((response) => response.json());
+    return items[0];
   }
 
   const supabaseUrl = googleSignIn.dataset.supabaseUrl;
@@ -147,6 +255,70 @@
   logoutBtn.addEventListener("click", () => {
     localStorage.removeItem(SESSION_KEY);
     showGuest();
+  });
+
+  addFavoriteBtn.addEventListener("click", async () => {
+    const session = readStoredSession();
+    if (!session) return showGuest();
+    setStatus("Сохраняем статью...");
+    const publication = await firstPublication();
+    if (!publication) return setStatus("Сначала найдите публикации в каталоге.");
+    await apiFetch(session, "/api/v1/favorites", {
+      method: "POST",
+      body: JSON.stringify({ publication })
+    });
+    setStatus("Статья добавлена в избранное.");
+    loadProfileData(session);
+  });
+
+  saveSearchBtn.addEventListener("click", async () => {
+    const session = readStoredSession();
+    if (!session) return showGuest();
+    await apiFetch(session, "/api/v1/saved-searches", {
+      method: "POST",
+      body: JSON.stringify({
+        name: "Mental health",
+        query: "mental health",
+        filters_json: { sort: "citations" }
+      })
+    });
+    setStatus("Поиск сохранен.");
+    loadProfileData(session);
+  });
+
+  createCollectionBtn.addEventListener("click", async () => {
+    const session = readStoredSession();
+    if (!session) return showGuest();
+    await apiFetch(session, "/api/v1/collections", {
+      method: "POST",
+      body: JSON.stringify({
+        name: "Обзор литературы",
+        description: "Материалы для первого чтения"
+      })
+    });
+    setStatus("Подборка создана.");
+    loadProfileData(session);
+  });
+
+  subscribeTopicBtn.addEventListener("click", async () => {
+    const session = readStoredSession();
+    if (!session) return showGuest();
+    const topic = await firstTopic();
+    if (!topic) return setStatus("Сначала обновите каталог тем.");
+    await apiFetch(session, "/api/v1/subscriptions", {
+      method: "POST",
+      body: JSON.stringify({
+        topic: {
+          openalex_id: topic.openalex_id,
+          name: topic.name,
+          description: null,
+          works_count: topic.works_count || 0,
+          keywords_cache: null
+        }
+      })
+    });
+    setStatus("Подписка добавлена.");
+    loadProfileData(session);
   });
 
   const session = readSessionFromHash() || readStoredSession();

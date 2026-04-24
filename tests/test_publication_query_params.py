@@ -33,6 +33,8 @@ def test_publications_api_ignores_empty_optional_int_filters(monkeypatch) -> Non
         return []
 
     monkeypatch.setattr(publications_module, "list_publications", fake_list_publications)
+    monkeypatch.setattr(publications_module, "ingest_works", lambda *args, **kwargs: None)
+    monkeypatch.setattr(publications_module, "should_refresh_ingestion", lambda *args, **kwargs: False)
 
     response = create_test_client().get(
         "/api/v1/publications?q=mental+health&year=&topic_id=&author_id=&sort=recent"
@@ -53,6 +55,8 @@ def test_publications_page_ignores_empty_optional_int_filters(monkeypatch) -> No
         return []
 
     monkeypatch.setattr(pages_module, "list_publications", fake_list_publications)
+    monkeypatch.setattr(pages_module, "ingest_works", lambda *args, **kwargs: None)
+    monkeypatch.setattr(pages_module, "should_refresh_ingestion", lambda *args, **kwargs: False)
     monkeypatch.setattr(pages_module, "list_topics", lambda db, limit: [])
     monkeypatch.setattr(pages_module, "list_authors", lambda db, limit: [])
 

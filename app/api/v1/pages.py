@@ -216,3 +216,12 @@ async def profile_page(request: Request) -> HTMLResponse:
         name="profile.html",
         context=base_context(request) | {"supabase_url": settings.supabase_url.rstrip("/")},
     )
+
+
+@router.get("/quality", response_class=HTMLResponse)
+async def quality_page(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse(
+        request=request,
+        name="quality.html",
+        context=base_context(request),
+    )

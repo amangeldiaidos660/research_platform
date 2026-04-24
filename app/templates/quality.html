@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Качество{% endblock %}
+{% block content %}
+<section class="rounded-[2rem] bg-white p-8 shadow-soft ring-1 ring-slate-200">
+  <p class="text-sm font-semibold uppercase tracking-[0.22em] text-pine">Качество и запуск</p>
+  <h2 class="mt-3 text-3xl font-bold text-ink">Проверки проекта</h2>
+  <p class="mt-3 max-w-3xl text-sm leading-7 text-slate-600">
+    Проект проверяется автоматическими тестами, сборкой Docker-образа, нагрузочным сценарием и метриками для мониторинга.
+  </p>
+</section>
+
+<section class="mt-6 grid gap-4 md:grid-cols-2">
+  <article class="rounded-[1.5rem] bg-white p-6 shadow-soft ring-1 ring-slate-200">
+    <h3 class="text-xl font-bold text-ink">Неделя 12. Тестирование</h3>
+    <ul class="mt-4 space-y-2 text-sm text-slate-600">
+      <li>Unit tests для collector и пользовательских функций.</li>
+      <li>Integration tests для API и авторизованных сценариев.</li>
+      <li>Coverage threshold: 40%.</li>
+      <li>Команда: <span class="font-semibold text-ink">pytest</span></li>
+    </ul>
+  </article>
+
+  <article class="rounded-[1.5rem] bg-white p-6 shadow-soft ring-1 ring-slate-200">
+    <h3 class="text-xl font-bold text-ink">Неделя 13. Нагрузочное тестирование</h3>
+    <ul class="mt-4 space-y-2 text-sm text-slate-600">
+      <li>k6 сценарий для главной, поиска, тем, обзора и healthcheck.</li>
+      <li>Профиль нагрузки: 100+ одновременных пользователей.</li>
+      <li>Отчет: RPS, latency, error rate.</li>
+      <li>Файл: <span class="font-semibold text-ink">load_tests/k6_public_api.js</span></li>
+    </ul>
+  </article>
+
+  <article class="rounded-[1.5rem] bg-white p-6 shadow-soft ring-1 ring-slate-200">
+    <h3 class="text-xl font-bold text-ink">Неделя 14. Мониторинг и деплой</h3>
+    <ul class="mt-4 space-y-2 text-sm text-slate-600">
+      <li>Prometheus metrics endpoint: <a href="/api/v1/metrics" class="font-semibold text-pine hover:underline">/api/v1/metrics</a></li>
+      <li>Prometheus config и Grafana-ready Docker Compose.</li>
+      <li>Логи приложения выводятся в stdout контейнера.</li>
+      <li>Demo deployment: Vercel + Supabase PostgreSQL.</li>
+    </ul>
+  </article>
+
+  <article class="rounded-[1.5rem] bg-white p-6 shadow-soft ring-1 ring-slate-200">
+    <h3 class="text-xl font-bold text-ink">Неделя 15. Финальная защита</h3>
+    <ul class="mt-4 space-y-2 text-sm text-slate-600">
+      <li>Живая демонстрация поиска и автозагрузки из OpenAlex.</li>
+      <li>Показ Supabase БД и аналитики.</li>
+      <li>Показ GitHub Actions и результатов k6.</li>
+      <li>Показ метрик мониторинга.</li>
+    </ul>
+  </article>
+</section>
+{% endblock %}

@@ -26,8 +26,13 @@ dependencies = [
 dev = [
     "pytest>=8.4.0",
     "pytest-asyncio>=1.1.0",
+    "pytest-cov>=7.0.0",
     "ruff>=0.12.0",
 ]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=app --cov-report=term-missing --cov-fail-under=40"
 
 [project.scripts]
 app = "app.main:app"
