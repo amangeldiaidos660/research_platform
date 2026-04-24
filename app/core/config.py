@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     app_host: str = Field(default="0.0.0.0", alias="APP_HOST")
     app_port: int = Field(default=8000, alias="APP_PORT")
     app_debug: bool = Field(default=True, alias="APP_DEBUG")
-    auto_create_tables: bool = Field(default=True, alias="AUTO_CREATE_TABLES")
+    auto_create_tables: bool = Field(default=False, alias="AUTO_CREATE_TABLES")
 
     postgres_db: str = Field(default="research_platform", alias="POSTGRES_DB")
     postgres_user: str = Field(default="postgres", alias="POSTGRES_USER")
@@ -24,7 +24,7 @@ class Settings(BaseSettings):
         alias="DATABASE_URL",
     )
 
-    jwt_secret_key: str = Field(default="change-me", alias="JWT_SECRET_KEY")
+    jwt_secret_key: str = Field(default="replace-with-a-strong-random-secret", alias="JWT_SECRET_KEY")
     jwt_algorithm: str = Field(default="HS256", alias="JWT_ALGORITHM")
     jwt_access_token_expire_minutes: int = Field(
         default=60,
