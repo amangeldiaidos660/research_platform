@@ -1,50 +1,96 @@
 {% extends "base.html" %}
-{% block title %}Публикации{% endblock %}
+{% block title %}Статьи{% endblock %}
 {% block content %}
-<section class="rounded-[2rem] bg-white p-6 shadow-lg ring-1 ring-slate-200">
-  <h2 class="text-3xl font-bold">Публикации</h2>
-  <form method="get" class="mt-6 grid gap-4 md:grid-cols-5">
-    <input type="text" name="q" value="{{ filters.q or '' }}" placeholder="Поиск по title/abstract" class="rounded-2xl border border-slate-200 px-4 py-3">
-    <input type="number" name="year" value="{{ filters.year or '' }}" placeholder="Год" class="rounded-2xl border border-slate-200 px-4 py-3">
-    <select name="topic_id" class="rounded-2xl border border-slate-200 px-4 py-3">
+<section class="rounded-[2rem] bg-white p-6 shadow-soft ring-1 ring-slate-200">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div class="max-w-2xl">
+      <h2 class="text-3xl font-bold">Поиск статей</h2>
+      <p class="mt-2 text-sm leading-6 text-slate-600">
+        Введите тему, вопрос или ключевые слова. Если только начинаете, сперва используйте поиск по теме и сортировку по ссылкам.
+      </p>
+    </div>
+    <div class="rounded-2xl bg-mist px-4 py-3 text-sm text-slate-700">
+      Подсказка: запросы вроде <span class="font-semibold">sleep memory</span> или <span class="font-semibold">AI in education</span> работают лучше, чем одно слово.
+    </div>
+  </div>
+
+  <form method="get" class="mt-6 grid gap-4 lg:grid-cols-5">
+    <input type="text" name="q" value="{{ filters.q or '' }}" placeholder="Например: climate change adaptation" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20">
+    <input type="number" name="year" value="{{ filters.year or '' }}" placeholder="Год публикации" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20">
+    <select name="topic_id" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20">
       <option value="">Все темы</option>
       {% for topic in topics %}
       <option value="{{ topic.id }}" {% if filters.topic_id == topic.id %}selected{% endif %}>{{ topic.name }}</option>
       {% endfor %}
     </select>
-    <select name="author_id" class="rounded-2xl border border-slate-200 px-4 py-3">
+    <select name="author_id" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20">
       <option value="">Все авторы</option>
       {% for author in authors %}
       <option value="{{ author.id }}" {% if filters.author_id == author.id %}selected{% endif %}>{{ author.display_name }}</option>
       {% endfor %}
     </select>
-    <select name="sort" class="rounded-2xl border border-slate-200 px-4 py-3">
+    <select name="sort" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20">
       <option value="recent" {% if filters.sort == 'recent' %}selected{% endif %}>Сначала новые</option>
-      <option value="citations" {% if filters.sort == 'citations' %}selected{% endif %}>По цитированиям</option>
+      <option value="citations" {% if filters.sort == 'citations' %}selected{% endif %}>Сначала важные</option>
     </select>
-    <button class="md:col-span-5 rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white">Применить фильтры</button>
+    <button class="lg:col-span-5 rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">Показать результаты</button>
   </form>
 </section>
 
-<section class="mt-6 grid gap-4">
+<section class="mt-6 flex items-center justify-between gap-4">
+  <div class="text-sm text-slate-600">
+    Найдено результатов: <span class="font-semibold text-ink">{{ publications|length }}</span>
+  </div>
+  <div class="text-sm text-slate-500">
+    Что означают ссылки: чем больше ссылок у статьи, тем чаще на нее опираются другие публикации.
+  </div>
+</section>
+
+<section class="mt-4 grid gap-4">
   {% for item in publications %}
-  <article class="rounded-[1.5rem] bg-white p-6 shadow-lg ring-1 ring-slate-200">
-    <div class="flex flex-wrap items-start justify-between gap-4">
-      <div>
-        <a href="/publications/{{ item.id }}" class="text-xl font-bold hover:text-cyan">{{ item.title }}</a>
-        <p class="mt-2 text-sm text-slate-500">{{ item.publication_year or "n/a" }} | {{ item.type or "unknown type" }} | {{ item.primary_location_source or "source n/a" }}</p>
+  <article class="rounded-[1.75rem] bg-white p-6 shadow-soft ring-1 ring-slate-200">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+      <div class="max-w-3xl">
+        <div class="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+          <span class="rounded-full bg-cloud px-3 py-1">{{ item.publication_year or "год не указан" }}</span>
+          <span class="rounded-full bg-cloud px-3 py-1">{{ item.type or "тип не указан" }}</span>
+          {% if item.cited_by_count and item.cited_by_count > 50 %}
+          <span class="rounded-full bg-amber px-3 py-1 text-white">Заметная статья</span>
+          {% endif %}
+        </div>
+        <a href="/publications/{{ item.id }}" class="mt-3 block text-2xl font-bold leading-snug text-ink transition hover:text-pine">
+          {{ item.title }}
+        </a>
+        <p class="mt-2 text-sm text-slate-500">
+          Источник: {{ item.primary_location_source or "не указан" }}
+        </p>
+        {% if item.abstract_summary %}
+        <p class="mt-4 text-sm leading-7 text-slate-700">{{ item.abstract_summary }}</p>
+        {% else %}
+        <p class="mt-4 text-sm leading-7 text-slate-500">
+          Краткое описание пока недоступно. Откройте карточку статьи, чтобы посмотреть полные данные.
+        </p>
+        {% endif %}
+        {% if item.keywords_cache %}
+        <p class="mt-4 text-xs leading-6 text-slate-500">
+          Ключевые слова: {{ item.keywords_cache }}
+        </p>
+        {% endif %}
       </div>
-      <span class="rounded-full bg-sky px-3 py-2 text-sm font-semibold">{{ item.cited_by_count }} citations</span>
+      <div class="min-w-52 rounded-[1.5rem] bg-mist p-4">
+        <div class="text-xs uppercase tracking-[0.18em] text-slate-500">Почему может быть полезно</div>
+        <div class="mt-3 text-3xl font-bold">{{ item.cited_by_count }}</div>
+        <p class="mt-1 text-sm text-slate-600">раз на статью сослались другие публикации</p>
+        <a href="/publications/{{ item.id }}" class="mt-5 inline-flex rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800">
+          Открыть карточку
+        </a>
+      </div>
     </div>
-    {% if item.abstract_summary %}
-    <p class="mt-4 text-sm leading-7 text-slate-600">{{ item.abstract_summary }}</p>
-    {% endif %}
-    {% if item.keywords_cache %}
-    <p class="mt-4 text-xs uppercase tracking-[0.2em] text-slate-400">{{ item.keywords_cache }}</p>
-    {% endif %}
   </article>
   {% else %}
-  <article class="rounded-[1.5rem] bg-white p-6 shadow-lg ring-1 ring-slate-200 text-slate-500">Публикаций пока нет. Сначала выполните ingestion.</article>
+  <article class="rounded-[1.75rem] bg-white p-6 shadow-soft ring-1 ring-slate-200 text-slate-500">
+    По этому запросу пока нет результатов. Попробуйте убрать часть слов, выбрать другую тему или открыть раздел тем для старта.
+  </article>
   {% endfor %}
 </section>
 {% endblock %}

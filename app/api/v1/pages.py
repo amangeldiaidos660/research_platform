@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.api.query_params import parse_optional_int_query
 from app.core.config import settings
 from app.db.session import get_db
 from app.services.analytics_service import get_dashboard_analytics, get_topic_growth
@@ -46,20 +47,42 @@ async def home(request: Request, db: Session = Depends(get_db)) -> HTMLResponse:
 async def publications_page(
     request: Request,
     q: str | None = None,
-    year: int | None = None,
-    topic_id: int | None = None,
-    author_id: int | None = None,
+    year: str | None = None,
+    topic_id: str | None = None,
+    author_id: str | None = None,
     sort: str = Query(default="recent"),
     db: Session = Depends(get_db),
 ) -> HTMLResponse:
-    items = list_publications(db, q=q, year=year, topic_id=topic_id, author_id=author_id, sort=sort, limit=50)
+    parsed_year = parse_optional_int_query(year, "year")
+    parsed_topic_id = parse_optional_int_query(topic_id, "topic_id")
+    parsed_author_id = parse_optional_int_query(author_id, "author_id")
+    items = list_publications(
+        db,
+        q=q,
+        year=parsed_year,
+        topic_id=parsed_topic_id,
+        author_id=parsed_author_id,
+        sort=sort,
+        limit=50,
+    )
     topics = list_topics(db, limit=100)
     authors = list_authors(db, limit=100)
     return templates.TemplateResponse(
         request=request,
         name="publications.html",
         context=base_context(request)
-        | {"publications": items, "topics": topics, "authors": authors, "filters": {"q": q, "year": year, "topic_id": topic_id, "author_id": author_id, "sort": sort}},
+        | {
+            "publications": items,
+            "topics": topics,
+            "authors": authors,
+            "filters": {
+                "q": q,
+                "year": parsed_year,
+                "topic_id": parsed_topic_id,
+                "author_id": parsed_author_id,
+                "sort": sort,
+            },
+        },
     )
 
 

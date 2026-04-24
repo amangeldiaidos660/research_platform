@@ -3,101 +3,178 @@
 {% block title %}{{ app_name }}{% endblock %}
 
 {% block content %}
-<section class="grid gap-8 lg:grid-cols-[1.2fr_0.8fr]">
-  <div class="rounded-[2rem] bg-white/90 p-8 shadow-xl shadow-slate-200/60 ring-1 ring-slate-200">
-    <span class="inline-flex rounded-full bg-cyan px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-white">
-      Dashboard
+<section class="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
+  <article class="rounded-[2rem] bg-white p-8 shadow-soft ring-1 ring-slate-200">
+    <span class="inline-flex rounded-full bg-amber px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em] text-white">
+      Старт для новичка
     </span>
-    <h2 class="mt-5 max-w-2xl text-4xl font-bold leading-tight">
-      Инженерный слой поверх OpenAlex для поиска, персонализации и научной аналитики.
+    <h2 class="mt-5 max-w-3xl text-4xl font-bold leading-tight">
+      Разбирайтесь в научных темах простым маршрутом: найдите тему, откройте важные статьи, сохраните полезное.
     </h2>
     <p class="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-      Интерфейс уже подключен к локальной БД. Отсюда можно запускать ingestion из OpenAlex,
-      переходить в каталоги данных и проверять аналитические выборки.
+      Этот интерфейс помогает начать даже без научной подготовки. Сначала выберите тему
+      или введите вопрос, затем переходите к статьям, авторам и обзору трендов.
     </p>
 
-    <div class="mt-8 flex flex-wrap gap-3">
-      <a href="/ingestion" class="rounded-full bg-cyan px-5 py-3 text-sm font-semibold text-white">
-        Запустить сбор данных
-      </a>
-      <a href="/analytics" class="rounded-full bg-white px-5 py-3 text-sm font-semibold text-ink ring-1 ring-slate-200">
-        Открыть аналитику
-      </a>
-      <a href="/docs" class="rounded-full bg-ink px-5 py-3 text-sm font-semibold text-white">
-        Открыть API docs
-      </a>
-    </div>
-  </div>
+    <form action="/publications" method="get" class="mt-8 rounded-[1.5rem] bg-mist p-4 ring-1 ring-slate-200">
+      <label for="hero-search" class="mb-3 block text-sm font-semibold text-ink">
+        Что вы хотите изучить?
+      </label>
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <input
+          id="hero-search"
+          type="text"
+          name="q"
+          placeholder="Например: влияние сна на память"
+          class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20"
+        />
+        <button class="rounded-2xl bg-ink px-6 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
+          Начать поиск
+        </button>
+      </div>
+      <div class="mt-3 flex flex-wrap gap-2 text-sm">
+        <a href="/publications?q=machine+learning" class="rounded-full bg-white px-3 py-2 text-slate-700 ring-1 ring-slate-200 hover:bg-cloud">machine learning</a>
+        <a href="/publications?q=climate+change" class="rounded-full bg-white px-3 py-2 text-slate-700 ring-1 ring-slate-200 hover:bg-cloud">climate change</a>
+        <a href="/publications?q=mental+health" class="rounded-full bg-white px-3 py-2 text-slate-700 ring-1 ring-slate-200 hover:bg-cloud">mental health</a>
+      </div>
+    </form>
 
-  <div class="grid gap-4">
-    <article class="rounded-[1.75rem] bg-slate-900 p-6 text-white shadow-xl">
-      <p class="text-sm uppercase tracking-[0.25em] text-cyan-200">Текущее состояние</p>
-      <dl class="mt-4 grid grid-cols-2 gap-4 text-sm text-slate-200">
+    <div class="mt-8 grid gap-4 md:grid-cols-3">
+      <article class="rounded-[1.5rem] bg-cloud p-5">
+        <h3 class="text-lg font-bold">1. Найдите тему</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-600">
+          Начните с интересующей области и посмотрите, какие направления в ней самые заметные.
+        </p>
+      </article>
+      <article class="rounded-[1.5rem] bg-cloud p-5">
+        <h3 class="text-lg font-bold">2. Выберите статьи</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-600">
+          Смотрите краткие описания, год публикации и сколько раз на работу ссылались.
+        </p>
+      </article>
+      <article class="rounded-[1.5rem] bg-cloud p-5">
+        <h3 class="text-lg font-bold">3. Поймите картину</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-600">
+          Перейдите в обзор, чтобы увидеть рост интереса к теме, активных авторов и общие тренды.
+        </p>
+      </article>
+    </div>
+  </article>
+
+  <aside class="grid gap-4">
+    <article class="rounded-[1.75rem] bg-ink p-6 text-white shadow-soft">
+      <p class="text-sm uppercase tracking-[0.25em] text-emerald-200">Что уже есть в базе</p>
+      <dl class="mt-5 grid grid-cols-2 gap-4 text-sm">
         <div>
-          <dt class="text-slate-400">Публикации</dt>
-          <dd class="text-2xl font-bold text-white">{{ analytics.publications_total }}</dd>
+          <dt class="text-slate-300">Статьи</dt>
+          <dd class="mt-1 text-3xl font-bold">{{ analytics.publications_total }}</dd>
         </div>
         <div>
-          <dt class="text-slate-400">Авторы</dt>
-          <dd class="text-2xl font-bold text-white">{{ analytics.authors_total }}</dd>
+          <dt class="text-slate-300">Авторы</dt>
+          <dd class="mt-1 text-3xl font-bold">{{ analytics.authors_total }}</dd>
         </div>
         <div>
-          <dt class="text-slate-400">Темы</dt>
-          <dd class="text-2xl font-bold text-white">{{ analytics.topics_total }}</dd>
+          <dt class="text-slate-300">Темы</dt>
+          <dd class="mt-1 text-3xl font-bold">{{ analytics.topics_total }}</dd>
         </div>
         <div>
-          <dt class="text-slate-400">Citations</dt>
-          <dd class="text-2xl font-bold text-white">{{ analytics.citations_total }}</dd>
+          <dt class="text-slate-300">Ссылки</dt>
+          <dd class="mt-1 text-3xl font-bold">{{ analytics.citations_total }}</dd>
         </div>
       </dl>
+      <p class="mt-4 text-sm leading-6 text-slate-300">
+        Эти цифры показывают объем локальной базы. Вам не нужно разбираться в источнике данных, чтобы начать изучение.
+      </p>
     </article>
 
-    <article class="rounded-[1.75rem] bg-white p-6 shadow-lg ring-1 ring-slate-200">
-      <p class="text-sm uppercase tracking-[0.25em] text-cyan">Последние ingestion jobs</p>
-      <ul class="mt-4 space-y-3 text-sm text-slate-600">
-        {% for job in recent_jobs %}
-        <li class="rounded-2xl bg-slate-50 px-4 py-3">
-          <div class="flex items-center justify-between">
-            <span class="font-semibold">{{ job.entity_type }}</span>
-            <span class="text-xs uppercase tracking-[0.2em] text-slate-500">{{ job.status }}</span>
-          </div>
-          <p class="mt-1 text-xs text-slate-500">processed: {{ job.processed_count }} | inserted: {{ job.inserted_count }} | updated: {{ job.updated_count }}</p>
-        </li>
-        {% else %}
-        <li class="rounded-2xl bg-slate-50 px-4 py-3 text-slate-500">Запусков пока нет. Начните с страницы ingestion.</li>
-        {% endfor %}
-      </ul>
+    <article class="rounded-[1.75rem] bg-white p-6 shadow-soft ring-1 ring-slate-200">
+      <h3 class="text-xl font-bold">Быстрые входы</h3>
+      <div class="mt-4 grid gap-3 text-sm">
+        <a href="/topics" class="rounded-2xl bg-mist px-4 py-4 transition hover:bg-tide">
+          <span class="block font-semibold text-ink">Смотреть темы</span>
+          <span class="mt-1 block text-slate-600">Лучший старт, если вы только выбираете направление.</span>
+        </a>
+        <a href="/publications?sort=citations" class="rounded-2xl bg-mist px-4 py-4 transition hover:bg-tide">
+          <span class="block font-semibold text-ink">Важные статьи</span>
+          <span class="mt-1 block text-slate-600">Показываем сначала заметные и часто цитируемые публикации.</span>
+        </a>
+        <a href="/analytics" class="rounded-2xl bg-mist px-4 py-4 transition hover:bg-tide">
+          <span class="block font-semibold text-ink">Обзор трендов</span>
+          <span class="mt-1 block text-slate-600">Помогает понять, куда движется интерес исследователей.</span>
+        </a>
+      </div>
     </article>
-  </div>
+  </aside>
 </section>
 
 <section class="mt-8 grid gap-6 lg:grid-cols-2">
-  <article class="rounded-[1.75rem] bg-white p-6 shadow-lg ring-1 ring-slate-200">
-    <h3 class="text-xl font-bold">Топ публикаций</h3>
-    <ul class="mt-4 space-y-3 text-sm">
+  <article class="rounded-[1.75rem] bg-white p-6 shadow-soft ring-1 ring-slate-200">
+    <div class="flex items-center justify-between gap-4">
+      <div>
+        <h3 class="text-2xl font-bold">Статьи, с которых удобно начать</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-600">
+          Ниже материалы, на которые часто ссылаются. Это хороший ориентир для первого знакомства с темой.
+        </p>
+      </div>
+      <a href="/publications?sort=citations" class="text-sm font-semibold text-pine hover:underline">Все статьи</a>
+    </div>
+    <ul class="mt-5 space-y-4">
       {% for item in analytics.top_publications %}
-      <li class="flex items-start justify-between gap-4 border-b border-slate-100 pb-3">
-        <span class="text-slate-700">{{ item.label }}</span>
-        <span class="rounded-full bg-sky px-3 py-1 text-xs font-semibold">{{ item.value }}</span>
+      <li class="rounded-[1.25rem] bg-cloud px-4 py-4">
+        <div class="flex items-start justify-between gap-4">
+          <span class="font-semibold text-slate-800">{{ item.label }}</span>
+          <span class="shrink-0 rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+            {{ item.value }} ссылок
+          </span>
+        </div>
       </li>
       {% else %}
-      <li class="text-slate-500">Пока нет данных.</li>
+      <li class="rounded-[1.25rem] bg-cloud px-4 py-4 text-slate-500">Пока нет данных. Сначала загрузите или обновите материалы.</li>
       {% endfor %}
     </ul>
   </article>
 
-  <article class="rounded-[1.75rem] bg-white p-6 shadow-lg ring-1 ring-slate-200">
-    <h3 class="text-xl font-bold">Топ авторов</h3>
-    <ul class="mt-4 space-y-3 text-sm">
+  <article class="rounded-[1.75rem] bg-white p-6 shadow-soft ring-1 ring-slate-200">
+    <div class="flex items-center justify-between gap-4">
+      <div>
+        <h3 class="text-2xl font-bold">Кто чаще публикуется по темам</h3>
+        <p class="mt-2 text-sm leading-6 text-slate-600">
+          Эти авторы полезны как ориентир: через них можно быстро выйти на ключевые работы и смежные исследования.
+        </p>
+      </div>
+      <a href="/authors" class="text-sm font-semibold text-pine hover:underline">Все авторы</a>
+    </div>
+    <ul class="mt-5 space-y-4">
       {% for item in analytics.top_authors %}
-      <li class="flex items-start justify-between gap-4 border-b border-slate-100 pb-3">
-        <span class="text-slate-700">{{ item.label }}</span>
-        <span class="rounded-full bg-sky px-3 py-1 text-xs font-semibold">{{ item.value }}</span>
+      <li class="rounded-[1.25rem] bg-cloud px-4 py-4">
+        <div class="flex items-start justify-between gap-4">
+          <span class="font-semibold text-slate-800">{{ item.label }}</span>
+          <span class="shrink-0 rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+            {{ item.value }} публикаций
+          </span>
+        </div>
       </li>
       {% else %}
-      <li class="text-slate-500">Пока нет данных.</li>
+      <li class="rounded-[1.25rem] bg-cloud px-4 py-4 text-slate-500">Пока нет данных по авторам.</li>
       {% endfor %}
     </ul>
   </article>
+</section>
+
+<section class="mt-8 rounded-[2rem] bg-white p-8 shadow-soft ring-1 ring-slate-200">
+  <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+    <div class="max-w-2xl">
+      <h3 class="text-2xl font-bold">Если вы только начинаете</h3>
+      <p class="mt-3 text-sm leading-7 text-slate-600">
+        Самый простой путь такой: откройте раздел тем, найдите знакомое направление, затем перейдите в статьи и выберите работы
+        с большим числом ссылок или более свежим годом публикации. После этого загляните в обзор, чтобы понять, как меняется интерес к теме.
+      </p>
+    </div>
+    <div class="grid w-full max-w-xl gap-3 text-sm sm:grid-cols-3">
+      <a href="/topics" class="rounded-2xl border border-slate-200 px-4 py-4 font-semibold text-slate-700 transition hover:border-pine hover:text-pine">Изучить темы</a>
+      <a href="/publications" class="rounded-2xl border border-slate-200 px-4 py-4 font-semibold text-slate-700 transition hover:border-pine hover:text-pine">Открыть статьи</a>
+      <a href="/analytics" class="rounded-2xl border border-slate-200 px-4 py-4 font-semibold text-slate-700 transition hover:border-pine hover:text-pine">Посмотреть обзор</a>
+    </div>
+  </div>
 </section>
 {% endblock %}

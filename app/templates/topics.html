@@ -1,25 +1,41 @@
 {% extends "base.html" %}
 {% block title %}Темы{% endblock %}
 {% block content %}
-<section class="rounded-[2rem] bg-white p-6 shadow-lg ring-1 ring-slate-200">
-  <h2 class="text-3xl font-bold">Темы</h2>
-  <form method="get" class="mt-6 flex gap-3">
-    <input type="text" name="q" value="{{ q or '' }}" placeholder="Поиск по теме" class="w-full rounded-2xl border border-slate-200 px-4 py-3">
-    <button class="rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white">Найти</button>
+<section class="rounded-[2rem] bg-white p-6 shadow-soft ring-1 ring-slate-200">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div class="max-w-2xl">
+      <h2 class="text-3xl font-bold">Темы</h2>
+      <p class="mt-2 text-sm leading-6 text-slate-600">
+        Это лучший раздел для старта. Сначала выберите тему, затем переходите к статьям и обзору по ней.
+      </p>
+    </div>
+    <div class="rounded-2xl bg-mist px-4 py-3 text-sm text-slate-700">
+      Совет: если вы только начинаете, ищите не автора, а именно тему.
+    </div>
+  </div>
+  <form method="get" class="mt-6 flex flex-col gap-3 sm:flex-row">
+    <input type="text" name="q" value="{{ q or '' }}" placeholder="Например: renewable energy" class="w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20">
+    <button class="rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">Найти тему</button>
   </form>
 </section>
+
 <section class="mt-6 grid gap-4 md:grid-cols-2">
   {% for topic in topics %}
-  <article class="rounded-[1.5rem] bg-white p-6 shadow-lg ring-1 ring-slate-200">
-    <a href="/topics/{{ topic.id }}" class="text-xl font-bold hover:text-cyan">{{ topic.name }}</a>
-    <p class="mt-2 text-sm text-slate-500">{{ topic.domain_name or "domain n/a" }} / {{ topic.field_name or "field n/a" }}</p>
-    <div class="mt-4 flex gap-3 text-sm">
-      <span class="rounded-full bg-sky px-3 py-2">{{ topic.works_count }} works</span>
-      <span class="rounded-full bg-slate-100 px-3 py-2">{{ topic.cited_by_count }} citations</span>
+  <article class="rounded-[1.75rem] bg-white p-6 shadow-soft ring-1 ring-slate-200">
+    <a href="/topics/{{ topic.id }}" class="text-2xl font-bold text-ink transition hover:text-pine">{{ topic.name }}</a>
+    <p class="mt-3 text-sm text-slate-500">
+      {{ topic.domain_name or "Область не указана" }} / {{ topic.field_name or "Направление не указано" }}
+    </p>
+    <div class="mt-4 flex flex-wrap gap-3 text-sm">
+      <span class="rounded-full bg-cloud px-3 py-2">{{ topic.works_count }} публикаций</span>
+      <span class="rounded-full bg-mist px-3 py-2">{{ topic.cited_by_count }} ссылок</span>
     </div>
+    <p class="mt-4 text-sm leading-7 text-slate-600">
+      Откройте тему, чтобы увидеть ее описание, связанные статьи и как менялся интерес к ней по годам.
+    </p>
   </article>
   {% else %}
-  <article class="rounded-[1.5rem] bg-white p-6 shadow-lg ring-1 ring-slate-200 text-slate-500">Тем пока нет.</article>
+  <article class="rounded-[1.75rem] bg-white p-6 shadow-soft ring-1 ring-slate-200 text-slate-500">Темы пока не найдены.</article>
   {% endfor %}
 </section>
 {% endblock %}
