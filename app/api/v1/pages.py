@@ -9,7 +9,7 @@ from app.api.query_params import parse_optional_int_query
 from app.core.config import settings
 from app.db.session import get_db
 from app.services.analytics_service import get_dashboard_analytics, get_topic_growth
-from app.services.collector_service import ingest_works, should_refresh_ingestion
+from app.services.collector_service import ingest_works
 from app.services.repository_service import (
     dashboard_counts,
     get_author_detail,
@@ -27,6 +27,28 @@ templates = Jinja2Templates(directory=str(Path("app/templates")))
 
 def base_context(request: Request) -> dict:
     return {"request": request, "app_name": settings.app_name}
+
+
+def _load_publication_filters(
+    db: Session,
+    *,
+    selected_topic_id: int | None,
+    selected_author_id: int | None,
+) -> tuple[list, list]:
+    topics = list_topics(db, limit=30)
+    authors = list_authors(db, limit=30)
+
+    if selected_topic_id and not any(topic.id == selected_topic_id for topic in topics):
+        selected_topic = get_topic_detail(db, selected_topic_id)
+        if selected_topic:
+            topics = [selected_topic, *topics]
+
+    if selected_author_id and not any(author.id == selected_author_id for author in authors):
+        selected_author = get_author_detail(db, selected_author_id)
+        if selected_author:
+            authors = [selected_author, *authors]
+
+    return topics, authors
 
 
 @router.get("/", response_class=HTMLResponse, summary="Home page")
@@ -67,15 +89,7 @@ async def publications_page(
         limit=50,
     )
     filter_value = f"publication_year:{parsed_year}" if parsed_year else None
-    if q and (
-        not items
-        or should_refresh_ingestion(
-            db,
-            entity_type="works",
-            query_text=q,
-            filter=filter_value,
-        )
-    ):
+    if q and not items:
         ingest_works(
             db,
             search=q,
@@ -94,8 +108,11 @@ async def publications_page(
             sort=sort,
             limit=50,
         )
-    topics = list_topics(db, limit=100)
-    authors = list_authors(db, limit=100)
+    topics, authors = _load_publication_filters(
+        db,
+        selected_topic_id=parsed_topic_id,
+        selected_author_id=parsed_author_id,
+    )
     return templates.TemplateResponse(
         request=request,
         name="publications.html",

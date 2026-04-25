@@ -14,7 +14,7 @@
     </div>
   </div>
 
-  <form method="get" class="mt-6 grid gap-4 lg:grid-cols-5">
+  <form method="get" data-search-form class="mt-6 grid gap-4 lg:grid-cols-5">
     <input type="text" name="q" value="{{ filters.q or '' }}" placeholder="Например: climate change adaptation" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20">
     <input type="number" name="year" value="{{ filters.year or '' }}" placeholder="Год публикации" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20">
     <select name="topic_id" class="rounded-2xl border border-slate-200 px-4 py-3 outline-none transition focus:border-pine focus:ring-2 focus:ring-pine/20">
@@ -147,4 +147,5 @@
   {% endfor %}
 </section>
 <script src="/static/user-tools.js"></script>
+<script src="/static/search-timer.js"></script>
 {% endblock %}
