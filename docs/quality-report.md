@@ -20,7 +20,6 @@ Covered areas:
 - Supabase OAuth token mapping to local user profile;
 - collector upsert and relation sync logic;
 - OpenAlex refresh TTL decision logic;
-- Prometheus metrics endpoint;
 - publication query parameter parsing.
 
 ## Week 13. Load Testing
@@ -46,27 +45,13 @@ Scenario:
 - check 2xx responses;
 - enforce error rate `< 5%` and p95 latency `< 1500ms`.
 
-## Week 14. Monitoring And Deployment
+## Week 14. Deployment
 
-Monitoring endpoint:
+Deployment surface:
 
-```text
-/api/v1/metrics
-```
-
-Production-like stack:
-
-```powershell
-docker compose -f docker-compose.prod.yml up --build
-```
-
-Stack components:
-
-- FastAPI application;
-- Prometheus;
-- Grafana;
-- application logs through container stdout;
-- Supabase PostgreSQL for demo/prod data.
+- Vercel application;
+- Supabase PostgreSQL for demo/prod data;
+- application logs through Vercel and Supabase dashboards.
 
 ## Week 15. Final Defense
 
@@ -78,5 +63,4 @@ Demo checklist:
 - show Supabase tables;
 - show analytics dashboard;
 - show GitHub Actions CI;
-- show k6 output;
-- open `/api/v1/metrics`.
+- show k6 output.
