@@ -7,6 +7,28 @@ from app.db.models import Author, IngestionJob, Publication, PublicationAuthor, 
 from app.services.processor_service import normalize_text
 
 
+def _apply_publication_filters(
+    query,
+    *,
+    year: int | None,
+    topic_id: int | None,
+    author_id: int | None,
+):
+    if year:
+        query = query.filter(Publication.publication_year == year)
+    if topic_id:
+        query = query.join(PublicationTopic).filter(PublicationTopic.topic_id == topic_id)
+    if author_id:
+        query = query.join(PublicationAuthor).filter(PublicationAuthor.author_id == author_id)
+    return query
+
+
+def _apply_publication_sort(query, *, sort: str):
+    if sort == "citations":
+        return query.order_by(desc(Publication.cited_by_count))
+    return query.order_by(desc(Publication.publication_year), desc(Publication.id))
+
+
 def list_publications(
     db: Session,
     *,
@@ -24,22 +46,30 @@ def list_publications(
             or_(
                 Publication.normalized_title.contains(normalized),
                 Publication.title.ilike(f"%{q}%"),
-                Publication.abstract_text.ilike(f"%{q}%"),
+                Publication.keywords_cache.ilike(f"%{q}%"),
             )
         )
-    if year:
-        query = query.filter(Publication.publication_year == year)
-    if topic_id:
-        query = query.join(PublicationTopic).filter(PublicationTopic.topic_id == topic_id)
-    if author_id:
-        query = query.join(PublicationAuthor).filter(PublicationAuthor.author_id == author_id)
+    query = _apply_publication_filters(
+        query,
+        year=year,
+        topic_id=topic_id,
+        author_id=author_id,
+    )
+    query = _apply_publication_sort(query, sort=sort)
+    items = query.distinct().limit(limit).all()
 
-    if sort == "citations":
-        query = query.order_by(desc(Publication.cited_by_count))
-    else:
-        query = query.order_by(desc(Publication.publication_year), desc(Publication.id))
+    if items or not q:
+        return items
 
-    return query.distinct().limit(limit).all()
+    fallback_query = db.query(Publication).filter(Publication.abstract_text.ilike(f"%{q}%"))
+    fallback_query = _apply_publication_filters(
+        fallback_query,
+        year=year,
+        topic_id=topic_id,
+        author_id=author_id,
+    )
+    fallback_query = _apply_publication_sort(fallback_query, sort=sort)
+    return fallback_query.distinct().limit(limit).all()
 
 
 def get_publication_detail(db: Session, publication_id: int) -> Publication | None:

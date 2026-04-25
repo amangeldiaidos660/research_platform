@@ -34,9 +34,10 @@ def _load_publication_filters(
     *,
     selected_topic_id: int | None,
     selected_author_id: int | None,
+    include_suggestions: bool,
 ) -> tuple[list, list]:
-    topics = list_topics(db, limit=30)
-    authors = list_authors(db, limit=30)
+    topics = list_topics(db, limit=15) if include_suggestions else []
+    authors = list_authors(db, limit=15) if include_suggestions else []
 
     if selected_topic_id and not any(topic.id == selected_topic_id for topic in topics):
         selected_topic = get_topic_detail(db, selected_topic_id)
@@ -86,7 +87,7 @@ async def publications_page(
         topic_id=parsed_topic_id,
         author_id=parsed_author_id,
         sort=sort,
-        limit=50,
+        limit=20,
     )
     filter_value = f"publication_year:{parsed_year}" if parsed_year else None
     if q and not items:
@@ -106,12 +107,13 @@ async def publications_page(
             topic_id=parsed_topic_id,
             author_id=parsed_author_id,
             sort=sort,
-            limit=50,
+            limit=20,
         )
     topics, authors = _load_publication_filters(
         db,
         selected_topic_id=parsed_topic_id,
         selected_author_id=parsed_author_id,
+        include_suggestions=not bool(q),
     )
     return templates.TemplateResponse(
         request=request,
